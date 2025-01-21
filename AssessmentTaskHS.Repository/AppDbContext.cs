@@ -13,7 +13,32 @@ namespace AssessmentTaskHS.Repository
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<StockQuote>().HasKey(p => p.Id);
+            modelBuilder.Entity<StockQuote>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Symbol)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(x => x.TimeStamp)
+                    .IsRequired();
+
+                entity.Property(x => x.OpenPrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.HighPrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.LowPrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.ClosePrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.Volume)
+                    .IsRequired();
+            });
         }
     }
 }

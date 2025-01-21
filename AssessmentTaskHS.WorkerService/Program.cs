@@ -32,7 +32,7 @@ using (var scope = app.Services.CreateScope())
     recurringJobManager.AddOrUpdate<StockUpsertJob>(
         "StockUpsertJob",
         job => job.ExecuteAsync(),
-        Cron.Hourly // Executar a cada hora
+        Cron.Hourly
     );
 
     var backgroundJobClient = scope.ServiceProvider.GetRequiredService<IBackgroundJobClient>();

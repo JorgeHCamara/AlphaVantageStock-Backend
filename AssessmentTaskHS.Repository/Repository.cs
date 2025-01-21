@@ -11,10 +11,10 @@ namespace AssessmentTaskHS.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly DbContext _dbContext;
+        private readonly AppDbContext _dbContext;
         private readonly DbSet<T> _dbSet;
 
-        public Repository(DbContext dbContext)
+        public Repository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<T>();
@@ -29,6 +29,30 @@ namespace AssessmentTaskHS.Repository
         {
             return await _dbSet.FindAsync(id);
         }
+
+        public async Task UpsertAsync(T entity, Expression<Func<T, bool>> predicate)
+        {
+            var existingEntity = await _dbSet.FirstOrDefaultAsync(predicate);
+
+            if (existingEntity != null)
+            {
+                var entry = _dbContext.Entry(existingEntity);
+                foreach (var property in entry.Properties)
+                {
+                    if (!property.Metadata.IsPrimaryKey())
+                    {
+                        property.CurrentValue = _dbContext.Entry(entity).Property(property.Metadata.Name).CurrentValue;
+                    }
+                }
+            }
+            else
+            {
+                await _dbSet.AddAsync(entity);
+            }
+
+            await _dbContext.SaveChangesAsync();
+        }
+
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
